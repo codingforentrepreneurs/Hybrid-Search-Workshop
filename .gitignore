@@ -22,5 +22,5 @@ rav.yaml
 pyproject.toml
 uv.lock
 .python-version
-readme.md
+app-readme.md
 .env.sample

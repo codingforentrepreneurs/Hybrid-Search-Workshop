@@ -12,7 +12,6 @@ Run every terminal command from this folder (the repository root).
 - Docker Desktop (only if not using Tiger Cloud): https://www.docker.com/products/docker-desktop/
 - uv: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - Tiger Cloud account: https://console.cloud.timescale.com
-- OpenRouter (only for the full app): https://openrouter.ai
 
 Pre-download the embedding model:
 

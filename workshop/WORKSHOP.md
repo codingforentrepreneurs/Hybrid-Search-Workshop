@@ -61,8 +61,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh     # macOS / Linux
 **3. This repository, plus the embedding model downloaded in advance** (~70 MB, so it doesn't compete for webinar bandwidth):
 
 ```sh
-git clone <repo-url> hybrid-search-demo
-cd hybrid-search-demo
+git clone https://github.com/codingforentrepreneurs/Hybrid-Search-Workshop.git
+cd Hybrid-Search-Workshop
 uv run workshop/load.py --download-only
 ```
 
@@ -379,13 +379,12 @@ connected to a preloaded database. Compared with this workshop, it adds:
 | 200 movies | 10,000 movies (the loader can load all 42,306) |
 | One vector per movie (truncated at the model limit) | Long plots split into chunks, embedded, and pooled |
 | Local `bge-small` (384 dims) | OpenRouter `text-embedding-3-small` (1,536 dims), with FastEmbed as a fallback |
-| Hand-written SQL | The same SQL in [`src/movies/search.py`](../src/movies/search.py), plus genre and year filters |
+| Hand-written SQL | The same SQL inside the app, plus genre and year filters |
 | Terminal output | A side-by-side web UI with ranks, snippets, and timing |
 
 The core is the same: one table, a `bm25` index, a `diskann` index, and a query
 that fuses ranks.
 
-To run the full app yourself after the webinar, follow the [repository README](../readme.md).
 Loading and embedding the whole corpus takes a while, so start it before you
 need it.
 

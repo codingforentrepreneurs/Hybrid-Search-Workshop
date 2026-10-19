@@ -1,6 +1,11 @@
 # Hybrid search run sheet
 
-Run every terminal command from the repository root (`hybrid-search-demo/`).
+```sh
+git clone https://github.com/codingforentrepreneurs/Hybrid-Search-Workshop.git
+cd Hybrid-Search-Workshop
+```
+
+Run every terminal command from this folder (the repository root).
 
 ## 0. Getting started (before the session)
 
@@ -15,11 +20,29 @@ Pre-download the embedding model:
 uv run workshop/load.py --download-only
 ```
 
-## 1. Create a Tiger Cloud service, then set the connection string
+psql client (skip if `psql --version` works):
+
+```sh
+brew install libpq && brew link --force libpq    # macOS
+sudo apt install -y postgresql-client           # Ubuntu / Debian
+```
+
+## 1. Create a database, then set the connection string
+
+**Option A: Tiger Cloud.** Create a service, copy its connection string:
 
 ```sh
 export DATABASE_URL="paste-your-tiger-cloud-connection-string-here"
 ```
+
+**Option B: Docker** (extensions preinstalled):
+
+```sh
+docker run -d --name hybrid-search -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb-ha:pg17 -c shared_preload_libraries=timescaledb,pg_textsearch
+export DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
+```
+
+Windows PowerShell: use `$env:DATABASE_URL = "..."` instead of `export`.
 
 ## 2. Open psql
 
@@ -91,9 +114,12 @@ ORDER BY search_text <@> 'someone reliving the same day' LIMIT 5;
 -- 50 First Dates beats Groundhog Day: keywords miss the concept.
 ```
 
-## 7. Embeddings (second terminal, same DATABASE_URL)
+## 7. Embeddings (second terminal)
+
+Open a second terminal in the repository folder. It needs the connection string too:
 
 ```sh
+export DATABASE_URL="paste-the-same-connection-string-here"
 uv run workshop/load.py
 ```
 
@@ -176,17 +202,19 @@ LIMIT 8;
 -- The Goonies is keyword #2 but semantic #29, so it drops.
 ```
 
-Try other inputs, then press the up arrow to rerun the query:
+Try other inputs. Each pair reruns the same query from `workshop/hybrid.sql`:
 
 ```sql
 \set query 'reliving the same day'
 \set likeStatement 'Groundhog Day'
+\i workshop/hybrid.sql
 -- Groundhog Day #1 (keyword 2, semantic 1).
 ```
 
 ```sql
 \set query 'ocean'
 \set likeStatement 'Jaws'
+\i workshop/hybrid.sql
 -- Jaws, Finding Nemo, Titanic. Blank ranks = found by only one method.
 ```
 
@@ -202,8 +230,31 @@ uv run workshop/ask.py "giant killer fish attacks swimmers at a seaside resort"
 - The last query shows hybrid hurting: semantic search gets Jaws #1, but "fish" pulls Finding Nemo to the top of the hybrid list.
 - Key line: Python only turns words into numbers. Postgres does all the searching and ranking.
 
+## Catch up (if you fall behind)
+
+From the repository folder, with `DATABASE_URL` set:
+
+```sh
+psql "$DATABASE_URL" -f workshop/schema.sql       # Steps 3-4
+psql "$DATABASE_URL" -f workshop/load_data.sql    # Step 5
+uv run workshop/load.py                           # Step 7
+psql "$DATABASE_URL" -f workshop/indexes.sql      # Steps 6 + 8 indexes
+```
+
+## Quick fixes
+
+- `relation "movies" does not exist`: run Step 4.
+- `no BM25 index found` or `index "movies_bm25_idx" does not exist`: run the CREATE INDEX in Step 6.
+- `pg_textsearch library not loaded`: Docker needs the `-c shared_preload_libraries=...` flag from Step 1.
+- `\i` or `\copy` can't find a file: start psql from the repository folder.
+- `uv` can't find Python: `uv python install 3.13`.
+
 ## Reset
 
 ```sql
 DROP TABLE IF EXISTS movies;
 ```
+
+---
+
+Dataset: [CMU Movie Summary Corpus](https://www.cs.cmu.edu/~ark/personas/) by David Bamman, Brendan O'Connor and Noah Smith ([CC BY-SA 3.0 US](https://creativecommons.org/licenses/by-sa/3.0/us/)). `movies_sample.jsonl` is a 200-movie subset.

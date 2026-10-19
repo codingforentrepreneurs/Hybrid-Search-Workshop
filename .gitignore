@@ -14,3 +14,13 @@ htmlcov/
 
 # Workshop embedding model cache
 workshop/.models/
+
+# Workshop-only repository: the full Django app stays local
+src/
+scripts/
+rav.yaml
+pyproject.toml
+uv.lock
+.python-version
+readme.md
+.env.sample

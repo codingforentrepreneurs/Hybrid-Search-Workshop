@@ -20,12 +20,22 @@ MODEL = "BAAI/bge-small-en-v1.5"  # 384 dimensions, runs on a laptop CPU
 SAMPLE = Path(__file__).with_name("movies_sample.jsonl")
 
 
+def load_dotenv(path=Path(".env")):
+    """Read KEY=value lines from ./.env without overriding the environment."""
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            key, sep, value = line.removeprefix("export ").partition("=")
+            if sep and key.strip() and not key.lstrip().startswith("#"):
+                os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
 def search_text(movie):
     # Same shape the full app indexes: title, genres, then the plot.
     return "\n".join([movie["title"], ", ".join(movie["genres"]), "", movie["plot"]])
 
 
 def main():
+    load_dotenv()
     if "--download-only" in sys.argv:
         TextEmbedding(MODEL, cache_dir=str(Path(__file__).parent / ".models"))
         print("Model downloaded. You're ready for the workshop.")

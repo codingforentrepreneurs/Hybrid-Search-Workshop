@@ -28,26 +28,38 @@ sudo apt install -y postgresql-client           # Ubuntu / Debian
 
 ## 1. Create a database, then set the connection string
 
-**Option A: Tiger Cloud.** Create a service, copy its connection string:
+Create your `.env` file:
 
 ```sh
-export DATABASE_URL="paste-your-tiger-cloud-connection-string-here"
+cp .env.sample .env
 ```
 
-**Option B: Docker** (extensions preinstalled):
+**Option A: Tiger Cloud.** Create a service, copy its connection string, and paste it into `.env`:
+
+```sh
+DATABASE_URL=paste-your-tiger-cloud-connection-string-here
+```
+
+**Option B: Docker** (extensions preinstalled). Start the database:
 
 ```sh
 docker run -d --name hybrid-search -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb-ha:pg17 -c shared_preload_libraries=timescaledb,pg_textsearch
-export DATABASE_URL="postgres://postgres:password@localhost:5432/postgres"
 ```
 
-Windows PowerShell: use `$env:DATABASE_URL = "..."` instead of `export`.
-
-## 2. Open psql
+Then put this in `.env`:
 
 ```sh
+DATABASE_URL=postgres://postgres:password@localhost:5432/postgres
+```
+
+## 2. Load .env and open psql
+
+```sh
+set -a; source .env; set +a
 psql "$DATABASE_URL"
 ```
+
+`set -a; source .env; set +a` exports everything in `.env` into this terminal (the same as a `use dotenv` shortcut). Windows PowerShell: run `$env:DATABASE_URL = "..."` instead.
 
 ```sql
 \timing on
@@ -115,10 +127,9 @@ ORDER BY search_text <@> 'someone reliving the same day' LIMIT 5;
 
 ## 7. Embeddings (second terminal)
 
-Open a second terminal in the repository folder. It needs the connection string too:
+Open a second terminal in the repository folder. The script reads `.env` on its own:
 
 ```sh
-export DATABASE_URL="paste-the-same-connection-string-here"
 uv run workshop/load.py
 ```
 
@@ -231,9 +242,10 @@ uv run workshop/ask.py "giant killer fish attacks swimmers at a seaside resort"
 
 ## Catch up (if you fall behind)
 
-From the repository folder, with `DATABASE_URL` set:
+From the repository folder:
 
 ```sh
+set -a; source .env; set +a
 psql "$DATABASE_URL" -f workshop/schema.sql       # Steps 3-4
 psql "$DATABASE_URL" -f workshop/load_data.sql    # Step 5
 uv run workshop/load.py                           # Step 7

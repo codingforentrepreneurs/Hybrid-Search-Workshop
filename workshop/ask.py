@@ -56,6 +56,15 @@ HYBRID = """
 """
 
 
+def load_dotenv(path=Path(".env")):
+    """Read KEY=value lines from ./.env without overriding the environment."""
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            key, sep, value = line.removeprefix("export ").partition("=")
+            if sep and key.strip() and not key.lstrip().startswith("#"):
+                os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
 def run(cur, sql, params):
     started = time.perf_counter()
     cur.execute(sql, params)
@@ -64,6 +73,7 @@ def run(cur, sql, params):
 
 
 def main():
+    load_dotenv()
     url = os.environ.get("DATABASE_URL")
     if not url or len(sys.argv) < 2:
         sys.exit('Usage: DATABASE_URL=... uv run workshop/ask.py "your query"')

@@ -23,4 +23,3 @@ pyproject.toml
 uv.lock
 .python-version
 app-readme.md
-.env.sample

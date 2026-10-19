@@ -5,7 +5,7 @@ git clone https://github.com/codingforentrepreneurs/Hybrid-Search-Workshop.git
 cd Hybrid-Search-Workshop
 ```
 
-Run every terminal command from this folder (the repository root).
+Run every terminal command from this folder (the repository root). Start psql here too, so `\i workshop/...` finds its files.
 
 ## 0. Getting started (before the session)
 

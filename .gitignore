@@ -1,0 +1,16 @@
+.venv/
+.env
+.env.*
+!.env.sample
+__pycache__/
+*.py[cod]
+*.sqlite3
+data/
+staticfiles/
+.DS_Store
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Workshop embedding model cache
+workshop/.models/
